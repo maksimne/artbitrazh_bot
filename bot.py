@@ -62,7 +62,5 @@ async def under_menu(message: types.Message):
     await message.reply("📱 Аккаунты", reply_markup=u_menu)
 
 
-
-
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
