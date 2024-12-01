@@ -17,11 +17,36 @@ main_menu.add(KeyboardButton("📊 Статистика"))
 main_menu.add(KeyboardButton("📈 Анализ рынка"))
 main_menu.add(KeyboardButton("✅ Чекер"))
 
+isAuthorizated = False
+auth_data = {
+    "Andrey" : "aaa228bbb"
+}
+
 
 @dp.message_handler(commands=["start"])
-async def send_welcome(message: types.Message):
-    await message.reply("Добро пожаловать! Выберите действие:", reply_markup=main_menu)
+async def login_handler(message: types.Message):
+    await message.reply("Добро пожаловать. Для начала работы с ботом - авторизируйся при помощи команды /auth логин пароль!")
 
+@dp.message_handler(commands=["auth"])
+async def auth_handler(message: types.Message):
+    # Получаем текст команды после /auth
+    command = message.text.strip().split()
+
+    # Проверяем правильность формата команды
+    if len(command) != 3:
+        await message.reply("Неверный формат команды. Используйте: /auth login password")
+        return
+
+    # Извлекаем логин и пароль
+    _, login, password = command
+
+    # Проверяем, есть ли логин в словаре и совпадает ли пароль
+    if login in auth_data and auth_data[login] == password:
+        await message.reply(f"Привет, {login}! Ты успешно авторизовался. Выбери действие:",reply_markup=main_menu)
+        # send_welcome(message);
+
+    else:
+        await message.reply("Неверный логин или пароль.")
 
 
 # Под меню Аккаунты
