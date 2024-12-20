@@ -7,11 +7,46 @@ from selenium.webdriver.common.by import By
 
 from config import email, password
 
-useragents = []
+useragents = [
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/130.0.2849.80",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/130.0.2849.80",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 OPR/114.0.0.0",
+    "Mozilla/5.0 (Windows NT 10.0; WOW64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 OPR/114.0.0.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 OPR/114.0.0.0",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 OPR/114.0.0.0",
+    "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Vivaldi/7.0.3495.14",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Vivaldi/7.0.3495.14",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Vivaldi/7.0.3495.14",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Vivaldi/7.0.3495.14",
+    "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Vivaldi/7.0.3495.14",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 YaBrowser/24.10.1.669 Yowser/2.5 Safari/537.36",
+]
 
-def tiktok_auth(url, email):
 
-    driver = webdriver.Chrome()
+def get_useragent():
+    return useragents[random.randint(0, len(useragents)-1)]
+
+
+
+def register_device():
+    username = "".join([random.choice("abcdefghijklmn1234567890") for i in range(16)])
+    password = "".join([random.choice("abcdefghijklmn1234567890-!@#$%QWERTYUIOPASDFGHJKLZXCVBNM") for i in range(16)])
+
+    return [username, password]
+
+
+def tiktok_auth(url, email, username, password):
+
+    options = webdriver.ChromeOptions()
+    useragent = get_useragent()
+
+    print(useragent)
+
+    options.add_argument(f"user-agent={useragent}")
+    options.add_argument("--disable-blink-features=AutomationControlled")
+
+    driver = webdriver.Chrome(options=options)
 
     try:
 
@@ -24,8 +59,6 @@ def tiktok_auth(url, email):
         driver.delete_all_cookies()
 
         driver.add_cookie(cookies)
-        driver.refresh()
-
 
         # ожидание загрузки страницы ВАЖНО!!!!!!!!!!
         time.sleep(5)
@@ -44,7 +77,6 @@ def tiktok_auth(url, email):
         time.sleep(random.randint(50, 100)/100)
 
         # вводим пароль ВАЖНО
-        password = "hjdfbjkasdh7457234"
         password_field.send_keys(password)
 
 
@@ -95,7 +127,8 @@ def tiktok_auth(url, email):
 
 
 def main():
-    tiktok_auth("https://www.tiktok.com/signup", "formak026@gmail.com")
+    username, password = register_device()
+    tiktok_auth("https://www.tiktok.com/signup", "formak026@gmail.com", username, password)
 
 
 if __name__ == "__main__":
