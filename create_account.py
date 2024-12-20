@@ -1,5 +1,6 @@
 import random
 import time
+import mailcreating
 from selenium import webdriver
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
@@ -36,7 +37,7 @@ def register_device():
     return [username, password]
 
 
-def tiktok_auth(url, email, username, password):
+def tiktok_auth(url, email, username, password, token):
 
     options = webdriver.ChromeOptions()
     useragent = get_useragent()
@@ -117,7 +118,18 @@ def tiktok_auth(url, email, username, password):
         # send code
         driver.find_element(By.XPATH, '/html/body/div[1]/div/div[2]/div[1]/form/div[7]/div/button').click()
 
+
         time.sleep(random.randint(200, 500) / 100)
+
+        code = mailcreating.catch_code(token)
+
+        #paste code
+        code_field = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[2]/div[1]/form/div[7]/div/div/input')
+        code_field.click()
+        time.sleep(random.randint(200, 500) / 100)
+        code_field.send_keys(code)
+
+
         time.sleep(100)
     except Exception as ex:
         print(ex)
@@ -127,8 +139,13 @@ def tiktok_auth(url, email, username, password):
 
 
 def main():
+    account_id, email, password = mailcreating.create_email()
+    print(f"Временный адрес: {email}")
+    token = mailcreating.get_token(email, password)
+    print(f"Токен авторизации получен: {token}")
+
     username, password = register_device()
-    tiktok_auth("https://www.tiktok.com/signup", "formak026@gmail.com", username, password)
+    tiktok_auth("https://www.tiktok.com/signup", email, username, password, token)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 import requests
 import time
+import re
 
 BASE_URL = "https://api.mail.tm"
 
@@ -58,17 +59,9 @@ def read_message(token, message_id):
     response.raise_for_status()
     return response.json()
 
-if __name__ == "__main__":
-    # Создание временного почтового ящика
-    account_id, email, password = create_email()
-    print(f"Создан почтовый адрес: {email}")
+def catch_code(token):
+    global code
 
-    # Получение токена авторизации
-    token = get_token(email, password)
-    print(f"Токен авторизации получен: {token}")
-
-    # Проверка новых писем
-    print("Ожидание новых писем...")
     while True:
         messages = get_messages(token)
         if messages['hydra:totalItems'] > 0:
@@ -78,5 +71,37 @@ if __name__ == "__main__":
                 print(f"От: {msg['from']['address']}")
                 print(f"Тема: {msg['subject']}")
                 print(f"Содержимое: {msg['intro']}")
+
+                str = msg['subject']
+                match = re.search(r'\b\d{6}\b', str)
+                code = match.group(0);
             break
         time.sleep(5)
+
+    return code
+
+
+
+#
+# if __name__ == "__main__":
+#     # Создание временного почтового ящика
+#     account_id, email, password = create_email()
+#     print(f"Создан почтовый адрес: {email}")
+#
+#     # Получение токена авторизации
+#     token = get_token(email, password)
+#     print(f"Токен авторизации получен: {token}")
+#
+#     # Проверка новых писем
+#     print("Ожидание новых писем...")
+#     while True:
+#         messages = get_messages(token)
+#         if messages['hydra:totalItems'] > 0:
+#             print(f"Найдено {messages['hydra:totalItems']} письмо(а).")
+#             for message in messages['hydra:member']:
+#                 msg = read_message(token, message['id'])
+#                 print(f"От: {msg['from']['address']}")
+#                 print(f"Тема: {msg['subject']}")
+#                 print(f"Содержимое: {msg['intro']}")
+#             break
+#         time.sleep(5)
