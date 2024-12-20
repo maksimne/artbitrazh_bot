@@ -7,6 +7,7 @@ from selenium.webdriver.common.by import By
 
 from config import email, password
 
+useragents = []
 
 def tiktok_auth(url, email):
 
@@ -16,7 +17,15 @@ def tiktok_auth(url, email):
 
         # переход на url
         driver.get(url=url)
+
+        cookies = driver.get_cookies()
+        cookies = cookies[len(cookies)-1]
+
         driver.delete_all_cookies()
+
+        driver.add_cookie(cookies)
+        driver.refresh()
+
 
         # ожидание загрузки страницы ВАЖНО!!!!!!!!!!
         time.sleep(5)
