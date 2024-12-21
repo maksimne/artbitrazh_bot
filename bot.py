@@ -1,38 +1,29 @@
+import asyncio
 from aiogram import Bot, Dispatcher, types
-from aiogram.contrib.middlewares.logging import LoggingMiddleware
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from aiogram.utils import executor
+from aiogram.filters import Command
+from aiogram import F
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 API_TOKEN = "7611179707:AAE7HDYSC_CMywyAYF9YYS8Vk0AIrqkoARI"
 
 bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
-dp.middleware.setup(LoggingMiddleware())
+dp = Dispatcher()
 
 # Главное меню
-main_menu = ReplyKeyboardMarkup(resize_keyboard=True)
-main_menu.add(KeyboardButton("📱 Аккаунты"))
-main_menu.add(KeyboardButton("🎥 Контент"))
-main_menu.add(KeyboardButton("📊 Статистика"))
-main_menu.add(KeyboardButton("📈 Анализ рынка"))
-main_menu.add(KeyboardButton("✅ Чекер"))
-
 isAuthorizated = False
 auth_data = {
     "Andrey" : "aaa228bbb"
 }
 
 
-@dp.message_handler(commands=["start"])
+@dp.message(Command("start"))
 async def login_handler(message: types.Message):
     await message.reply("Добро пожаловать. Для начала работы с ботом - авторизируйся при помощи команды /auth логин пароль!")
 
-@dp.message_handler(commands=["auth"])
+@dp.message(Command("auth"))
 async def auth_handler(message: types.Message):
     # Получаем текст команды после /auth
     command = message.text.strip().split()
-
-    # Проверяем правильность формата команды
     if len(command) != 3:
         await message.reply("Неверный формат команды. Используйте: /auth login password")
         return
@@ -42,7 +33,16 @@ async def auth_handler(message: types.Message):
 
     # Проверяем, есть ли логин в словаре и совпадает ли пароль
     if login in auth_data and auth_data[login] == password:
-        await message.reply(f"Привет, {login}! Ты успешно авторизовался. Выбери действие:",reply_markup=main_menu)
+        builder = ReplyKeyboardBuilder()
+        builder.row(types.KeyboardButton(text="📱 Аккаунты"))
+        builder.row(types.KeyboardButton(text="🎥 Контент"))
+        builder.row(types.KeyboardButton(text="📊 Статистика"))
+        builder.row(types.KeyboardButton(text="📈 Анализ рынка"))
+        builder.row(types.KeyboardButton(text="✅ Чекер"))
+        await message.answer(
+            "Выберите действие:",
+            reply_markup=builder.as_markup(resize_keyboard=True),
+        )
         # send_welcome(message);
 
     else:
@@ -50,42 +50,59 @@ async def auth_handler(message: types.Message):
 
 
 # Под меню Аккаунты
-@dp.message_handler(content_types=["text"])
+@dp.message(F)
 async def under_menu(message: types.Message):
+
     if message.text == "Выйти":
-        u_menu = main_menu
+        builder = ReplyKeyboardBuilder()
+        builder.row(types.KeyboardButton(text="📱 Аккаунты"))
+        builder.row(types.KeyboardButton(text="🎥 Контент"))
+        builder.row(types.KeyboardButton(text="📊 Статистика"))
+        builder.row(types.KeyboardButton(text="📈 Анализ рынка"))
+        builder.row(types.KeyboardButton(text="✅ Чекер"))
+        builder.row(types.KeyboardButton(text="Выйти"))
     if message.text == "📱 Аккаунты":
-        u_menu = ReplyKeyboardMarkup(resize_keyboard=True)
-        u_menu.add(KeyboardButton("Добавить аккаунт"))
-        u_menu.add(KeyboardButton("Просмотреть аккаунты"))
-        u_menu.add(KeyboardButton("Удалить аккаунт"))
-        u_menu.add(KeyboardButton("Подключить бизнес-аккаунт"))
+        builder = ReplyKeyboardBuilder()
+        builder.row(types.KeyboardButton(text="Добавить аккаунт"))
+        builder.row(types.KeyboardButton(text="Просмотреть аккаунты"))
+        builder.row(types.KeyboardButton(text="Удалить аккаунт"))
+        builder.row(types.KeyboardButton(text="Подключить бизнес-аккаунт"))
+        builder.row(types.KeyboardButton(text="Выйти"))
 
     elif message.text == "🎥 Контент":
-        u_menu = ReplyKeyboardMarkup(resize_keyboard=True)
-        u_menu.add(KeyboardButton("Загрузить ролики для обработки"))
-        u_menu.add(KeyboardButton("Уникализировать ролики"))
-        u_menu.add(KeyboardButton("Настроить расписание автозалива"))
+        builder = ReplyKeyboardBuilder()
+        builder.row(types.KeyboardButton(text="Загрузить ролики для обработки"))
+        builder.row(types.KeyboardButton(text="Уникализировать ролики"))
+        builder.row(types.KeyboardButton(text="Настроить расписание автозалива"))
+        builder.row(types.KeyboardButton(text="Выйти"))
 
     elif message.text == "📊 Статистика":
-        u_menu = ReplyKeyboardMarkup(resize_keyboard=True)
-        u_menu.add(KeyboardButton("Выбрать платформу для анализа"))
-        u_menu.add(KeyboardButton("Выбрать нишу (офферы, вертикали)"))
-        u_menu.add(KeyboardButton("Просмотреть тренды и примеры"))
+        builder = ReplyKeyboardBuilder()
+        builder.row(types.KeyboardButton(text="Выбрать платформу для анализа"))
+        builder.row(types.KeyboardButton(text="Выбрать нишу (офферы, вертикали)"))
+        builder.row(types.KeyboardButton(text="Просмотреть тренды и примеры"))
+        builder.row(types.KeyboardButton(text="Выйти"))
 
     elif message.text == "📈 Анализ рынка":
-        u_menu = ReplyKeyboardMarkup(resize_keyboard=True)
-        u_menu.add(KeyboardButton("Проверить аккаунт"))
-        u_menu.add(KeyboardButton("Проверить несколько аккаунтов одновременно"))
+        builder = ReplyKeyboardBuilder()
+        builder.row(types.KeyboardButton(text="Проверить аккаунт"))
+        builder.row(types.KeyboardButton(text="Проверить несколько аккаунтов одновременно"))
+        builder.row(types.KeyboardButton(text="Выйти"))
 
     elif message.text == "✅ Чекер":
-        u_menu = ReplyKeyboardMarkup(resize_keyboard=True)
-        u_menu.add(KeyboardButton("Индивидуальная статистика по аккаунту"))
-        u_menu.add(KeyboardButton("Общая статистика"))
+        builder = ReplyKeyboardBuilder()
+        builder.row(types.KeyboardButton(text="Индивидуальная статистика по аккаунту"))
+        builder.row(types.KeyboardButton(text="Общая статистика"))
+        builder.row(types.KeyboardButton(text="Выйти"))
 
-    u_menu.add(KeyboardButton("Выйти"))
-    await message.reply("📱 Аккаунты", reply_markup=u_menu)
+    await message.answer(
+        "Выберите действие:",
+        reply_markup=builder.as_markup(resize_keyboard=True),
+    )
 
+
+async def main():
+    await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=True)
+    asyncio.run(main())
