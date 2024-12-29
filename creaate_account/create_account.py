@@ -4,7 +4,7 @@ from selenium import webdriver
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 
-from config import email, password
+# from config import email, password
 
 
 def tiktok_auth(url):
